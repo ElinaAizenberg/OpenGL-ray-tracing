@@ -13,7 +13,7 @@ set(EXTERNAL_LIB_DIR /home/elina/MyProjects/libs)
 
 # Add source files from the project
 set(PROJECT_SRC
-        src/main.cpp
+        main.cpp
 )
 
 # Add ImGui source files
