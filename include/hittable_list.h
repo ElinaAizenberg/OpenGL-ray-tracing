@@ -1,8 +1,8 @@
 #ifndef PROJECT_6_HITTABLE_LIST_H
 #define PROJECT_6_HITTABLE_LIST_H
 
+#include "common.h"
 #include "hittable.h"
-
 #include <vector>
 
 
