@@ -11,31 +11,7 @@
 #include "include/sphere.h"
 
 
-/*color ray_color(const ray& r) {
-    vec3 unit_direction = unit_vector(r.direction());
-    auto a = 0.5*(unit_direction.y() + 1.0);
-    return (1.0-a)*color(1.0, 1.0, 1.0) + a*color(0.5, 0.7, 1.0);
-}
-
-double hit_sphere(const point3& center, double radius, const ray& r) {
-    vec3 oc = center - r.origin();
-    auto a = r.direction().length_squared();
-    auto h = dot(r.direction(), oc);
-    auto c = oc.length_squared() - radius*radius;
-    auto discriminant = h*h - a*c;
-
-    if (discriminant < 0) {
-        return -1.0;
-    } else {
-        return (h - std::sqrt(discriminant)) / a;
-    }
-}
-*/
-
-
-
 int main(){
-    // World
     hittable_list world;
 
     auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
@@ -78,21 +54,21 @@ int main(){
     auto material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
     world.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
 
-    camera cam;
+    Camera camera;
 
-    cam.aspect_ratio      = 16.0 / 9.0;
-    cam.image_width       = 1200;
-    cam.samples_per_pixel = 100;
-    cam.max_depth         = 20;
+    camera.aspect_ratio      = 16.0 / 9.0;
+    camera.image_width       = 400;
+    camera.samples_per_pixel = 10;  // number of rays sent into area centered at the pixel and number of samples generated for each pixel
+    camera.max_depth         = 5;  // maximum number of rays bounces into scene
 
-    cam.vfov     = 20;
-    cam.lookfrom = point3(13,2,3);
-    cam.lookat   = point3(0,0,0);
-    cam.vup      = vec3(0,1,0);
+    camera.vfov     = 20;
+    camera.look_from = point3(13,2,3);
+    camera.look_at   = point3(0,0,0);
+    camera.view_up      = vec3(0,1,0);
 
-    cam.defocus_angle = 0.6;
-    cam.focus_dist    = 10.0;
+    camera.defocus_angle = 0.6;
+    camera.focus_dist    = 10.0;
+    camera.render(world);
 
-    cam.render(world);
     return 0;
 }
