@@ -8,7 +8,7 @@
 class sphere : public hittable {
 public:
     sphere(const point3& center, double radius, shared_ptr<material> mat)
-            : center(center), radius(std::fmax(0,radius)), sphere_material(mat) {}
+            : center(center), radius(std::fmax(0,radius)), object_material(mat) {}
 
 
     /** We want to know if our ray P(t)=Q+td ever hits the sphere anywhere.
@@ -48,7 +48,7 @@ public:
 
         record.t = root; // the ray parameter t in ray function definition P(t)=Q+td
         record.point = ray.at(root);
-        record.hit_material = sphere_material;
+        record.hit_material = object_material;
         vec3 outward_normal = (record.point - center) / radius; // unit length normal at the hit point
         record.set_face_normal(ray, outward_normal); // define whether ray intersects from inside/outside the sphere and
 
@@ -58,7 +58,7 @@ public:
 private:
     point3 center;
     double radius;
-    shared_ptr<material> sphere_material;
+    shared_ptr<material> object_material;
 };
 
 

@@ -164,22 +164,33 @@ inline vec3 random_on_hemisphere(const vec3& normal)
         return -on_unit_sphere;
 }
 
-inline vec3 random_in_unit_disk() {
+inline vec3 random_in_unit_disk()
+/** Generates a random 3D vector that lies inside a unit disk. */
+{
     while (true) {
         auto p = vec3(random_double(-1,1), random_double(-1,1), 0);
+        // checks if the length squared of this vector is less than 1 to ensure the vector lies within the unit disk
         if (p.length_squared() < 1)
             return p;
     }
 }
 
-inline vec3 reflect(const vec3& v, const vec3& n) {
-    return v - 2*dot(v,n)*n;
+inline vec3 reflect(const vec3& vector, const vec3& normal)
+/** The reflection vector r is calculated using the formula: r=v−2⋅dot(v,n)⋅n
+ * More on the graphical interpretation of the reflection vector calculation formula here:
+ * https://medium.com/@tiffanychen1118/graphical-interpretation-of-the-reflection-vector-2d826236650d
+ */
+{
+    return vector - 2*dot(vector,normal)*normal;
 }
 
-inline vec3 refract(const vec3& uv, const vec3& n, double etai_over_etat) {
-    auto cos_theta = std::fmin(dot(-uv, n), 1.0);
-    vec3 r_out_perp =  etai_over_etat * (uv + cos_theta*n);
-    vec3 r_out_parallel = -std::sqrt(std::fabs(1.0 - r_out_perp.length_squared())) * n;
+inline vec3 refract(const vec3& vector, const vec3& normal, double etai_over_etat)
+/** The refracted vector is calculated using the formula: R′=R′⊥+R′∥ */
+{
+    auto cos_theta = std::fmin(dot(-vector, normal), 1.0);
+    vec3 r_out_perp =  etai_over_etat * (vector + cos_theta*normal);
+    vec3 r_out_parallel = -std::sqrt(std::fabs(1.0 - r_out_perp.length_squared())) * normal;
+
     return r_out_perp + r_out_parallel;
 }
 

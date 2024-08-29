@@ -14,15 +14,21 @@ public:
     int    samples_per_pixel = 10;   // Count of random samples for each pixel
     int    max_depth         = 10;   // Maximum number of ray bounces into scene
 
-    double vfov     = 90;              // Vertical view angle (field of view)
+    double vfov     = 90;              // Vertical view angle (field of view) - visual angle from edge to edge of the rendered image
     point3 look_from = point3(0,0,0);   // Point camera is looking from
     point3 look_at   = point3(0,0,-1);  // Point camera is looking at
     vec3   view_up      = vec3(0,1,0);     // Camera-relative "up" direction
 
     double defocus_angle = 0;  // Variation angle of rays through each pixel
     double focus_dist = 10;    // Distance from camera lookfrom point to plane of perfect focus
+    /** Focus distance is not usually the same as the focal length.
+     * The focal length is the distance between the camera center and the image plane.
+     * The focus distance is the distance between the camera center and the plane where everything is in perfect focus.
+     * For this model, however, these two will have the same value, as we will put our pixel grid right on the focus plane.
+     */
 
     void render(const hittable& world)
+    /** Renders 3D scene with world objects.*/
     {
         initialize();
 
@@ -42,14 +48,14 @@ public:
                 for (int sample = 0; sample < samples_per_pixel; sample++)
                 {
                     ray new_ray = generate_ray(i, j);
-                    pixel_color += ray_color(new_ray, max_depth, world);
+                    pixel_color += define_ray_color(new_ray, max_depth, world);
                 }
                 // pixel color to be written in the file is the sum of samples' color values per pixel divided by number of samples per pixel
                 write_color(std::cout, pixel_samples_scale * pixel_color);
             }
         }
 
-        std::clog << "\rDone.\n";
+        std::clog << "\rDone.                 \n";
     }
 
 private:
@@ -79,7 +85,7 @@ private:
 
         // Determine viewport dimensions.
         // The viewport is a virtual rectangle in the 3D world that contains the grid of image pixel locations.
-        auto theta = degrees_to_radians(vfov);
+        auto theta = degrees_to_radians(vfov); // field of view in radians
         auto h = std::tan(theta/2);
         auto viewport_height = 2 * h * focus_dist;
         // We don't use 'aspect_ratio' because it's an ideal ration and actual differ might differ from 'aspect_ratio'.
@@ -110,12 +116,15 @@ private:
         pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
 
         // Calculate the camera defocus disk basis vectors.
+        // defocus radius is calculated the same way as half of the viewport height
         auto defocus_radius = focus_dist * std::tan(degrees_to_radians(defocus_angle / 2));
         defocus_disk_u = camera_right * defocus_radius;
         defocus_disk_v = camera_up * defocus_radius;
     }
 
-    color ray_color(const ray& in_ray, int depth, const hittable& world) const
+    color define_ray_color(const ray& in_ray, int depth, const hittable& world) const
+    /** Calculates a pixel color value by following the lifecycle of the ray until it fails to hit any object or
+     * it reaches the maximum number of ray bounces.*/
     {
         // If we've exceeded the ray bounce limit, no more light is gathered.
         // If the maximum number of ray bounces is not set, ray bouncing stops when ray fails to hit anything.
@@ -139,7 +148,7 @@ private:
 
             if (record.hit_material->scatter(in_ray, record, attenuation, scattered))
                 // recursive function stops when depth (maximum number of ray bounces) equals 0.
-                return attenuation * ray_color(scattered, depth-1, world);
+                return attenuation * define_ray_color(scattered, depth-1, world);
 
             return {0,0,0};
         }
@@ -166,14 +175,17 @@ private:
                             + ((i + offset.x()) * pixel_delta_u)
                             + ((j + offset.y()) * pixel_delta_v);
 
+        // Without defocus blur, all scene rays originate from the camera center (or lookfrom).
+        // The larger the radius of a defocus disk, the greater the defocus blur.
         auto ray_origin = (defocus_angle <= 0) ? center : defocus_disk_sample();
         auto ray_direction = pixel_sample - ray_origin;
 
         return {ray_origin, ray_direction};
     }
 
-    point3 defocus_disk_sample() const {
-        // Returns a random point in the camera defocus disk.
+    point3 defocus_disk_sample() const
+    /** Returns a random point in the camera defocus disk. */
+    {
         auto p = random_in_unit_disk();
         return center + (p[0] * defocus_disk_u) + (p[1] * defocus_disk_v);
     }
