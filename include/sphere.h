@@ -18,7 +18,7 @@ public:
      * */
     bool hit(const ray& ray, interval ray_t_interval, hit_record& record) const override
     {
-        // Reminder: a ray is a function P(t)=A+tb, where Q - the ray origin, d - the ray direction.
+        // Reminder: a ray is a function P(t)=Q+td, where Q - the ray origin, d - the ray direction.
         vec3 oc = center - ray.origin(); // <- (C-Q)
         // a = d*d; length_squared is this case is the same as dot product of the vector to itself
         auto a = ray.direction().length_squared();
