@@ -1,4 +1,4 @@
-# OpenGL-Ray-Tracing
+# Ray-Tracing
 
 This project is a heavily commented implementation of the mini ray tracer introduced in the book  <a href="https://raytracing.github.io/books/RayTracingInOneWeekend.html">Ray Tracing in One Weekend</a>. The book serves as an excellent introduction to ray tracing for beginners, offering a hands-on guide to creating a simple ray tracer from scratch. Personally, I enjoyed it greatly. However, it might be challenging to follow the code, with certain logic and concepts not always immediately clear.
 
